@@ -77,7 +77,6 @@ install-ios-rust-targets:
 dev: install-and-build
 	yarn download:bin
 	$(MAKE) build-mlx-server-if-exists
-	$(MAKE) build-engine-dev-if-possible
 	yarn dev
 
 # Web application targets
@@ -609,7 +608,6 @@ endif
 
 # Build
 build: install-and-build install-rust-targets
-	$(MAKE) build-engine
 	yarn build
 
 clean: clean-engine-source

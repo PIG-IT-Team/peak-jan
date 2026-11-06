@@ -42,9 +42,7 @@
     "resources": [
       "resources/LICENSE",
       "resources/bin/mlx-server",
-      "resources/bin/mlx-swift_Cmlx.bundle",
-      "resources/bin/jan-llama-worker",
-      "resources/bin/libggml*"
+      "resources/bin/mlx-swift_Cmlx.bundle"
     ],
     "externalBin": [
       "resources/bin/bun",

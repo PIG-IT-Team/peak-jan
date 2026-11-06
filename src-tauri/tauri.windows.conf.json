@@ -40,9 +40,7 @@
       "msi"
     ],
     "resources": [
-      "resources/LICENSE",
-      "resources/bin/jan-llama-worker.exe",
-      "resources/bin/*.dll"
+      "resources/LICENSE"
     ],
     "externalBin": [
       "resources/bin/bun",

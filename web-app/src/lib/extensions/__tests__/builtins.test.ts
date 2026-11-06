@@ -3,13 +3,12 @@ import { validateManifest } from '@janhq/extension-api'
 import { HOST_BUILTINS, getHostBuiltins } from '../builtins'
 import assistant from '../../../../../extensions/assistant-extension/package.json'
 import download from '../../../../../extensions/download-extension/package.json'
-import llamacpp from '../../../../../extensions/llamacpp-extension/package.json'
 import mlx from '../../../../../extensions/mlx-extension/package.json'
 import rag from '../../../../../extensions/rag-extension/package.json'
 import vectorDb from '../../../../../extensions/vector-db-extension/package.json'
 
 // vitest defines IS_MACOS as false, so mlx is not a host built-in here.
-const HOST_PACKAGES = [assistant, download, llamacpp, vectorDb, rag]
+const HOST_PACKAGES = [assistant, download, vectorDb, rag]
 
 describe('host built-ins', () => {
   it('gives every host built-in the manifest its package.json validates to', () => {

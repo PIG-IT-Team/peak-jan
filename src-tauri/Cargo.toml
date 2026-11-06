@@ -175,7 +175,8 @@ tauri-plugin-deep-link = { version = "2", optional = true }
 tauri-plugin-wdio-webdriver = { version = "1.5", optional = true }
 tauri-plugin-hardware = { path = "./plugins/tauri-plugin-hardware", optional = true }
 tauri-plugin-extensions = { path = "./plugins/tauri-plugin-extensions", optional = true }
-tauri-plugin-llamacpp = { path = "./plugins/tauri-plugin-llamacpp", optional = true }
+# Shared proxy/agent state only; the llama.cpp plugin is not registered.
+tauri-plugin-llamacpp = { path = "./plugins/tauri-plugin-llamacpp", optional = true, default-features = false }
 # The CLI consumes only these plugins' tauri-free cores (`db`, `provider`, the
 # agent toolset); the desktop feature turns their Tauri command surface back on.
 tauri-plugin-vector-db = { path = "./plugins/tauri-plugin-vector-db", default-features = false }
