@@ -4,7 +4,6 @@ import { useTranslation } from '@/i18n/react-i18next-compat'
 import { useState, useEffect, useCallback } from 'react'
 import {
   IconAdjustmentsHorizontal,
-  IconCircles,
   IconChevronDown,
   IconChevronRight,
   IconCommand,
@@ -12,9 +11,7 @@ import {
   IconPalette,
   IconPlus,
   IconTopologyStar3,
-  IconLock,
   IconCpu,
-  IconWorld,
   IconWorldSearch,
   IconFolderCode,
   IconPaperclip,
@@ -35,6 +32,22 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+
+const HIDDEN_PROVIDER_IDS = new Set([
+  'openai',
+  'anthropic',
+  'openrouter',
+  'mistral',
+  'groq',
+  'xai',
+  'gemini',
+  'minimax',
+  'huggingface',
+  'nvidia',
+  'nim',
+  'llamacpp',
+  'llama.cpp',
+])
 
 const SettingsMenu = () => {
   const { t } = useTranslation()
@@ -90,20 +103,18 @@ const SettingsMenu = () => {
     [providers, addProvider, t, navigate]
   )
 
-  const activeProviders = providers.filter((provider) => {
+  const settingsProviders = providers.filter((provider) => {
+    if (HIDDEN_PROVIDER_IDS.has(provider.provider)) return false
+    return !isLocalProvider(provider.provider)
+  })
+
+  const activeProviders = settingsProviders.filter((provider) => {
     if (!provider.active) return false
     if (!IS_MACOS && provider.provider === 'mlx') return false
     return true
   })
 
-  const activeLocalProviders = activeProviders.filter((p) =>
-    isLocalProvider(p.provider)
-  )
-  const activeRemoteProviders = activeProviders.filter(
-    (p) => !isLocalProvider(p.provider)
-  )
-
-  const hiddenProviders = providers.filter((provider) => {
+  const hiddenProviders = settingsProviders.filter((provider) => {
     if (provider.active) return false
     if (!IS_MACOS && provider.provider === 'mlx') return false
     return true
@@ -187,16 +198,6 @@ const SettingsMenu = () => {
       icon: IconPaperclip,
     },
     {
-      title: 'common:local_api_server',
-      route: route.settings.local_api_server,
-      icon: IconCircles,
-    },
-    {
-      title: 'common:https_proxy',
-      route: route.settings.https_proxy,
-      icon: IconWorld,
-    },
-    {
       title: 'common:web_search',
       route: route.settings.web_search,
       icon: IconWorldSearch,
@@ -222,7 +223,6 @@ const SettingsMenu = () => {
       isEnabled: true,
       icon: IconCpu,
     },
-    { title: 'common:privacy', route: route.settings.privacy, icon: IconLock },
     {
       title: 'common:extensions',
       route: route.settings.extensions,
@@ -235,13 +235,6 @@ const SettingsMenu = () => {
       title: 'common:mcp-servers',
       route: route.settings.mcp_servers,
       icon: IconTopologyStar3,
-    },
-    {
-      title: 'common:claude_code',
-      route: route.settings.claude_code,
-      icon: ({ size, className }: { size?: number; className?: string }) => (
-        <img src="/images/code-claude.svg" width={size} height={size} className={cn(className, 'dark:invert opacity-60')} />
-      ),
     },
   ]
 
@@ -299,26 +292,12 @@ const SettingsMenu = () => {
               </AddProviderDialog>
             </div>
             <div className="mt-1 flex flex-col gap-0.5">
-              {activeLocalProviders.length > 0 && (
+              {activeProviders.length > 0 && (
                 <>
                   <span className="px-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-                    {t('common:localProviders')}
-                  </span>
-                  {activeLocalProviders.map(renderActiveProvider)}
-                </>
-              )}
-
-              {activeRemoteProviders.length > 0 && (
-                <>
-                  <span
-                    className={cn(
-                      'px-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70',
-                      activeLocalProviders.length > 0 && 'mt-2'
-                    )}
-                  >
                     {t('common:remoteProviders')}
                   </span>
-                  {activeRemoteProviders.map(renderActiveProvider)}
+                  {activeProviders.map(renderActiveProvider)}
                 </>
               )}
 

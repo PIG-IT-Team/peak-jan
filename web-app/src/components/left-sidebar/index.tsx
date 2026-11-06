@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { DownloadManagement } from '@/containers/DownloadManegement'
 import { StatusItems } from '@/containers/extensions/StatusItems'
 import { NavChats } from './NavChats'
 import { NavCowork } from './NavCowork'
 import { NavMain } from './NavMain'
 import { NavProjects } from './NavProjects'
 import { NavTabs } from './NavTabs'
-import { useLeftPanel } from '@/hooks/useLeftPanel'
 
 import {
   Sidebar,
@@ -22,7 +20,6 @@ import { isCoworkRoute, route } from '@/constants/routes'
 import { isCoworkEnabled } from '@/lib/version'
 
 export function LeftSidebar() {
-  const { open: isLeftPanelOpen } = useLeftPanel()
   const { pathname } = useLocation()
   const inSettings =
     pathname === route.settings.index || pathname.startsWith('/settings/')
@@ -30,7 +27,7 @@ export function LeftSidebar() {
   if (!inSettings && lastSurfacePath !== pathname) setLastSurfacePath(pathname)
   const surfacePath = inSettings ? lastSurfacePath : pathname
   const isCowork = isCoworkRoute(surfacePath) && isCoworkEnabled()
-  // Right-align the header and hide "Jan" when native controls own the top-left
+  // Right-align the header and hide "Peak AI" when native controls own the top-left
   // (macOS, or a Linux DE placing buttons left).
   const leftButtons = useTitlebarLayout((s) => s.layout.left.length)
   const reserveLeft = IS_MACOS || leftButtons > 0
@@ -39,9 +36,8 @@ export function LeftSidebar() {
       <Sidebar variant="floating" collapsible="offcanvas">
         <SidebarHeader className="flex px-1">
           <div className={cn("flex items-center w-full justify-between", reserveLeft && "justify-end")}>
-            {!reserveLeft && <span className="ml-2 font-medium font-studio">Jan</span>}
+            {!reserveLeft && <span className="ml-2 font-medium font-studio">Peak AI</span>}
             <div className="flex items-center">
-              {isLeftPanelOpen && <DownloadManagement />}
               <SidebarTrigger className="text-muted-foreground rounded-full hover:bg-sidebar-foreground/8! -mt-0.5 relative z-50 ml-0.5" />
             </div>
           </div>

@@ -42,7 +42,7 @@ vi.mock('@/hooks/useModelProvider', () => ({
   useModelProvider: vi.fn(() => ({
     providers: [
       {
-        provider: 'openai',
+        provider: 'azure',
         active: true,
         models: [],
       },
@@ -96,7 +96,7 @@ describe('SettingsMenu', () => {
     vi.mocked(useMatches).mockReturnValue(mockMatches)
     vi.mocked(useModelProvider).mockReturnValue({
       providers: [
-        { provider: 'openai', active: true, models: [] },
+        { provider: 'azure', active: true, models: [] },
         { provider: 'llama.cpp', active: true, models: [] },
       ],
       addProvider: vi.fn(),
@@ -108,15 +108,16 @@ describe('SettingsMenu', () => {
 
     expect(screen.getByText('common:general')).toBeInTheDocument()
     expect(screen.getByText('common:appearance')).toBeInTheDocument()
-    expect(screen.getByText('common:privacy')).toBeInTheDocument()
+    expect(screen.queryByText('common:privacy')).not.toBeInTheDocument()
   })
 
   it('renders core settings links', () => {
     render(<SettingsMenu />)
     expect(screen.getByText('common:keyboardShortcuts')).toBeInTheDocument()
     expect(screen.getByText('common:assistants')).toBeInTheDocument()
-    expect(screen.getByText('common:local_api_server')).toBeInTheDocument()
-    expect(screen.getByText('common:privacy')).toBeInTheDocument()
+    expect(screen.queryByText('common:local_api_server')).not.toBeInTheDocument()
+    expect(screen.queryByText('common:https_proxy')).not.toBeInTheDocument()
+    expect(screen.queryByText('common:privacy')).not.toBeInTheDocument()
   })
 
   it('lists the Cowork settings entry where Cowork ships', () => {
@@ -142,7 +143,7 @@ describe('SettingsMenu', () => {
   it('renders integrations links', () => {
     render(<SettingsMenu />)
     expect(screen.getByText('common:mcp-servers')).toBeInTheDocument()
-    expect(screen.getByText('common:claude_code')).toBeInTheDocument()
+    expect(screen.queryByText('common:claude_code')).not.toBeInTheDocument()
   })
 
   it('shows provider expansion chevron when providers are active', () => {
@@ -157,14 +158,14 @@ describe('SettingsMenu', () => {
     render(<SettingsMenu />)
 
     // Providers ARE expanded by default (expandedProviders starts as true)
-    expect(screen.getByTestId('provider-avatar-openai')).toBeInTheDocument()
+    expect(screen.getByTestId('provider-avatar-azure')).toBeInTheDocument()
   })
 
   it('collapses disabled providers section when toggle is clicked', async () => {
     vi.mocked(useModelProvider).mockReturnValue({
       providers: [
-        { provider: 'openai', active: true, models: [] },
-        { provider: 'anthropic', active: false, models: [] },
+        { provider: 'azure', active: true, models: [] },
+        { provider: 'custom-provider', active: false, models: [] },
       ],
       addProvider: vi.fn(),
     })
@@ -172,44 +173,44 @@ describe('SettingsMenu', () => {
     const user = userEvent.setup()
     render(<SettingsMenu />)
 
-    // Disabled section is expanded by default — anthropic is visible
-    expect(screen.getByTestId('provider-avatar-anthropic')).toBeInTheDocument()
+    // Disabled section is expanded by default.
+    expect(screen.getByTestId('provider-avatar-custom-provider')).toBeInTheDocument()
 
     // Click the toggle to collapse the disabled section
     const toggleButton = screen.getByText('common:hiddenProviders')
     await user.click(toggleButton)
 
-    // After collapsing, anthropic should be hidden
-    expect(screen.queryByTestId('provider-avatar-anthropic')).not.toBeInTheDocument()
+    // After collapsing, the custom provider should be hidden.
+    expect(screen.queryByTestId('provider-avatar-custom-provider')).not.toBeInTheDocument()
   })
 
   it('auto-expands providers when on provider route', () => {
     vi.mocked(useMatches).mockReturnValue([
       {
         routeId: '/settings/providers/$providerName',
-        params: { providerName: 'openai' },
+        params: { providerName: 'azure' },
       },
     ])
 
     render(<SettingsMenu />)
 
-    expect(screen.getByTestId('provider-avatar-openai')).toBeInTheDocument()
+    expect(screen.getByTestId('provider-avatar-azure')).toBeInTheDocument()
   })
 
   it('highlights active provider in submenu', () => {
     vi.mocked(useMatches).mockReturnValue([
       {
         routeId: '/settings/providers/$providerName',
-        params: { providerName: 'openai' },
+        params: { providerName: 'azure' },
       },
     ])
 
     render(<SettingsMenu />)
 
-    const openaiProvider = screen
-      .getByTestId('provider-avatar-openai')
+    const azureProvider = screen
+      .getByTestId('provider-avatar-azure')
       .closest('div')
-    expect(openaiProvider).toBeInTheDocument()
+    expect(azureProvider).toBeInTheDocument()
   })
 
   it('navigates to provider when provider is clicked', async () => {
@@ -217,15 +218,15 @@ describe('SettingsMenu', () => {
     render(<SettingsMenu />)
 
     // Providers are expanded by default, click directly on a provider
-    const openaiProvider = screen
-      .getByTestId('provider-avatar-openai')
+    const azureProvider = screen
+      .getByTestId('provider-avatar-azure')
       .closest('div[class*="cursor-pointer"]')
-    await user.click(openaiProvider!)
+    await user.click(azureProvider!)
 
     expect(mockNavigate).toHaveBeenCalled()
   })
 
-  it('hides llama.cpp during setup remote provider step', () => {
+  it('hides local providers during setup remote provider step', () => {
     vi.mocked(useMatches).mockReturnValue([
       {
         routeId: '/settings/providers/',
@@ -236,19 +237,16 @@ describe('SettingsMenu', () => {
 
     render(<SettingsMenu />)
 
-    // openai should be visible during remote provider setup
-    expect(screen.getByTestId('provider-avatar-openai')).toBeInTheDocument()
-
-    // llama.cpp should have 'hidden' class during setup_remote_provider step
-    const llamaCpp = screen.getByTestId('provider-avatar-llama.cpp').closest('div[class*="cursor-pointer"]')
-    expect(llamaCpp?.className).toContain('hidden')
+    expect(screen.getByTestId('provider-avatar-azure')).toBeInTheDocument()
+    expect(screen.queryByTestId('provider-avatar-llama.cpp')).not.toBeInTheDocument()
+    expect(screen.queryByText('common:localProviders')).not.toBeInTheDocument()
   })
 
   it('shows inactive providers in disabled section', () => {
     vi.mocked(useModelProvider).mockReturnValue({
       providers: [
-        { provider: 'openai', active: true, models: [] },
-        { provider: 'anthropic', active: false, models: [] },
+        { provider: 'azure', active: true, models: [] },
+        { provider: 'custom-provider', active: false, models: [] },
       ],
       addProvider: vi.fn(),
     })
@@ -256,10 +254,55 @@ describe('SettingsMenu', () => {
     render(<SettingsMenu />)
 
     // Active provider shown normally
-    expect(screen.getByTestId('provider-avatar-openai')).toBeInTheDocument()
+    expect(screen.getByTestId('provider-avatar-azure')).toBeInTheDocument()
     // Inactive provider shown in the disabled section (expanded by default)
-    expect(screen.getByTestId('provider-avatar-anthropic')).toBeInTheDocument()
+    expect(screen.getByTestId('provider-avatar-custom-provider')).toBeInTheDocument()
     // Disabled section label is shown
     expect(screen.getByText('common:hiddenProviders')).toBeInTheDocument()
+  })
+
+  it('filters removed and local providers from persisted settings state', () => {
+    const removedProviders = [
+      'openai',
+      'anthropic',
+      'openrouter',
+      'mistral',
+      'groq',
+      'xai',
+      'gemini',
+      'minimax',
+      'huggingface',
+      'nvidia',
+      'nim',
+    ]
+    vi.mocked(useModelProvider).mockReturnValue({
+      providers: [
+        ...removedProviders.map((provider) => ({
+          provider,
+          active: true,
+          models: [],
+        })),
+        { provider: 'llamacpp', active: true, models: [] },
+        { provider: 'llama.cpp', active: true, models: [] },
+        { provider: 'mlx', active: true, models: [] },
+        { provider: 'azure', active: true, models: [] },
+      ],
+      addProvider: vi.fn(),
+    })
+
+    render(<SettingsMenu />)
+
+    for (const provider of [
+      ...removedProviders,
+      'llamacpp',
+      'llama.cpp',
+      'mlx',
+    ]) {
+      expect(
+        screen.queryByTestId(`provider-avatar-${provider}`)
+      ).not.toBeInTheDocument()
+    }
+    expect(screen.getByTestId('provider-avatar-azure')).toBeInTheDocument()
+    expect(screen.queryByText('common:localProviders')).not.toBeInTheDocument()
   })
 })

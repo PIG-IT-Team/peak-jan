@@ -43,21 +43,14 @@ vi.mock('@/i18n/react-i18next-compat', () => ({
 }))
 
 vi.mock('@/components/ui/switch', () => ({
-  Switch: ({ checked, onCheckedChange }: { checked: boolean; onCheckedChange: (checked: boolean) => void }) => (
+  Switch: ({ checked, disabled }: { checked: boolean; disabled?: boolean }) => (
     <input
       data-testid="switch"
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
+      disabled={disabled}
     />
   ),
-}))
-
-vi.mock('posthog-js', () => ({
-  default: {
-    opt_in_capturing: vi.fn(),
-    opt_out_capturing: vi.fn(),
-  },
 }))
 
 vi.mock('@/constants/routes', () => ({
@@ -105,6 +98,7 @@ describe('Privacy Settings Route', () => {
     const analyticsSwitch = screen.getByTestId('switch')
     expect(analyticsSwitch).toBeInTheDocument()
     expect(analyticsSwitch).not.toBeChecked()
+    expect(analyticsSwitch).toBeDisabled()
   })
 
   it('should handle analytics toggle when enabling', () => {

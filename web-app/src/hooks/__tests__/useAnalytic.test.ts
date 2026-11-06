@@ -25,7 +25,7 @@ describe('useAnalytic', () => {
     vi.clearAllMocks()
     // Reset stores to initial state
     useProductAnalyticPrompt.setState({
-      productAnalyticPrompt: true,
+      productAnalyticPrompt: false,
       setProductAnalyticPrompt: useProductAnalyticPrompt.getState().setProductAnalyticPrompt,
     })
     useProductAnalytic.setState({
@@ -35,17 +35,17 @@ describe('useAnalytic', () => {
   })
 
   describe('useProductAnalyticPrompt', () => {
-    it('should initialize with default value true', () => {
+    it('should initialize with analytics prompt disabled', () => {
       const { result } = renderHook(() => useProductAnalyticPrompt())
       
-      expect(result.current.productAnalyticPrompt).toBe(true)
+      expect(result.current.productAnalyticPrompt).toBe(false)
     })
 
-    it('should update productAnalyticPrompt value', async () => {
+    it('cannot enable the analytics prompt', async () => {
       const { result } = renderHook(() => useProductAnalyticPrompt())
       
       await act(async () => {
-        result.current.setProductAnalyticPrompt(false)
+        result.current.setProductAnalyticPrompt(true)
       })
       
       expect(result.current.productAnalyticPrompt).toBe(false)
@@ -55,7 +55,7 @@ describe('useAnalytic', () => {
       const { result } = renderHook(() => useProductAnalyticPrompt())
       
       await act(async () => {
-        result.current.setProductAnalyticPrompt(false)
+        result.current.setProductAnalyticPrompt(true)
       })
       
       expect(result.current.productAnalyticPrompt).toBe(false)
@@ -65,7 +65,7 @@ describe('useAnalytic', () => {
       const { result } = renderHook(() => useProductAnalyticPrompt())
       
       await act(async () => {
-        result.current.setProductAnalyticPrompt(false)
+        result.current.setProductAnalyticPrompt(true)
       })
       
       expect(result.current.productAnalyticPrompt).toBe(false)
@@ -79,14 +79,14 @@ describe('useAnalytic', () => {
       expect(result.current.productAnalytic).toBe(false)
     })
 
-    it('should update productAnalytic value', async () => {
+    it('cannot enable product analytics', async () => {
       const { result } = renderHook(() => useProductAnalytic())
       
       await act(async () => {
         result.current.setProductAnalytic(true)
       })
       
-      expect(result.current.productAnalytic).toBe(true)
+      expect(result.current.productAnalytic).toBe(false)
     })
 
     it('should call setProductAnalytic function', async () => {
@@ -96,7 +96,7 @@ describe('useAnalytic', () => {
         result.current.setProductAnalytic(true)
       })
       
-      expect(result.current.productAnalytic).toBe(true)
+      expect(result.current.productAnalytic).toBe(false)
     })
 
     it('should persist productAnalytic value to localStorage', async () => {
@@ -106,7 +106,7 @@ describe('useAnalytic', () => {
         result.current.setProductAnalytic(true)
       })
       
-      expect(result.current.productAnalytic).toBe(true)
+      expect(result.current.productAnalytic).toBe(false)
     })
   })
 
@@ -126,19 +126,19 @@ describe('useAnalytic', () => {
       
       await act(async () => {
         result.current.updateAnalytic({
-          productAnalyticPrompt: false,
+          productAnalyticPrompt: true,
           productAnalytic: true
         })
       })
       
       expect(result.current.productAnalyticPrompt).toBe(false)
-      expect(result.current.productAnalytic).toBe(true)
+      expect(result.current.productAnalytic).toBe(false)
     })
 
     it('should return default values on initial render', () => {
       const { result } = renderHook(() => useAnalytic())
       
-      expect(result.current.productAnalyticPrompt).toBe(true)
+      expect(result.current.productAnalyticPrompt).toBe(false)
       expect(result.current.productAnalytic).toBe(false)
     })
   })

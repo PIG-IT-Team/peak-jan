@@ -4,25 +4,25 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { backendStorage } from '@/lib/backendStorage'
 
 export const useAnalytic = () => {
-  const { productAnalyticPrompt, setProductAnalyticPrompt } =
+  const { setProductAnalyticPrompt: persistPromptOff } =
     useProductAnalyticPrompt()
-  const { productAnalytic, setProductAnalytic } = useProductAnalytic()
+  const { setProductAnalytic: persistAnalyticsOff } = useProductAnalytic()
 
-  const updateAnalytic = ({
-    productAnalyticPrompt,
-    productAnalytic,
-  }: {
+  const setProductAnalyticPrompt = (_value: boolean) => persistPromptOff(false)
+  const setProductAnalytic = (_value: boolean) => persistAnalyticsOff(false)
+
+  const updateAnalytic = (_values: {
     productAnalyticPrompt: boolean
     productAnalytic: boolean
   }) => {
-    setProductAnalyticPrompt(productAnalyticPrompt)
-    setProductAnalytic(productAnalytic)
+    setProductAnalyticPrompt(false)
+    setProductAnalytic(false)
   }
 
   return {
-    productAnalyticPrompt,
+    productAnalyticPrompt: false,
     setProductAnalyticPrompt,
-    productAnalytic,
+    productAnalytic: false,
     setProductAnalytic,
     updateAnalytic,
   }
@@ -37,9 +37,9 @@ export const useProductAnalyticPrompt = create<ProductAnalyticPromptState>()(
   persist(
     (set) => {
       const initialState = {
-        productAnalyticPrompt: true,
-        setProductAnalyticPrompt: async (value: boolean) => {
-          set(() => ({ productAnalyticPrompt: value }))
+        productAnalyticPrompt: false,
+        setProductAnalyticPrompt: async (_value: boolean) => {
+          set(() => ({ productAnalyticPrompt: false }))
         },
       }
 
@@ -49,6 +49,10 @@ export const useProductAnalyticPrompt = create<ProductAnalyticPromptState>()(
       name: localStorageKey.productAnalyticPrompt,
       storage: createJSONStorage(() => backendStorage),
       skipHydration: true,
+      merge: (_persistedState, currentState) => ({
+        ...currentState,
+        productAnalyticPrompt: false,
+      }),
     }
   )
 )
@@ -63,8 +67,8 @@ export const useProductAnalytic = create<ProductAnalyticState>()(
     (set) => {
       const initialState = {
         productAnalytic: false,
-        setProductAnalytic: async (value: boolean) => {
-          set(() => ({ productAnalytic: value }))
+        setProductAnalytic: async (_value: boolean) => {
+          set(() => ({ productAnalytic: false }))
         },
       }
 
@@ -74,6 +78,10 @@ export const useProductAnalytic = create<ProductAnalyticState>()(
       name: localStorageKey.productAnalytic,
       storage: createJSONStorage(() => backendStorage),
       skipHydration: true,
+      merge: (_persistedState, currentState) => ({
+        ...currentState,
+        productAnalytic: false,
+      }),
     }
   )
 )

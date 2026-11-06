@@ -16,16 +16,13 @@ vi.mock('@tanstack/react-router', () => ({
 vi.mock('@/i18n/react-i18next-compat', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
-vi.mock('@/hooks/useLeftPanel', () => ({
-  useLeftPanel: () => ({ open: true }),
-}))
 vi.mock('@/stores/titlebar-layout-store', () => ({
   useTitlebarLayout: (
     selector: (state: { layout: { left: string[]; right: string[] } }) => unknown
   ) => selector({ layout: { left: titlebar.left, right: [] } }),
 }))
 vi.mock('@/containers/DownloadManegement', () => ({
-  DownloadManagement: () => null,
+  DownloadManagement: () => <div data-testid="download-management" />,
 }))
 vi.mock('../NavCowork', () => ({ NavCowork: () => null }))
 vi.mock('../NavMain', () => ({ NavMain: () => null }))
@@ -58,6 +55,7 @@ it('shows the Jan label on Windows and Linux with window buttons on the right', 
   render(<LeftSidebar />)
 
   expect(screen.getByText('Jan')).toBeInTheDocument()
+  expect(screen.queryByTestId('download-management')).not.toBeInTheDocument()
 })
 
 // The traffic lights own the top-left on macOS (#8943).
